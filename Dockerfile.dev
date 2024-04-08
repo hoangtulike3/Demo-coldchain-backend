@@ -1,0 +1,59 @@
+FROM node:18-alpine AS builder
+
+# 컨테이너에서 사용할 기본 환경설정
+ENV APP_HOME /opt/cold-chain-app-api
+
+# 모든 소스를 작업 디렉토리로 복사
+COPY . .
+
+# NPM에 필요한 프로그램 설치
+RUN apk update && apk add --no-cache --virtual npm-deps curl
+
+# 불필요 모듈 삭제에 필요한 node-prune 설치
+RUN curl -sf https://gobinaries.com/tj/node-prune | sh
+
+#npm 최신 버전 설치
+RUN npm install -g npm@10.3.0
+
+# NPM 종속성 패키지 설치
+RUN npm install && npm run build
+
+# 여유 공간 확보를 위해서 설치된 패키지 삭제
+RUN apk del npm-deps
+# RUN /usr/local/bin/node-prune
+# RUN rm -rf node_modules/rxjs/src/
+# RUN rm -rf node_modules/rxjs/bundles/
+# RUN rm -rf node_modules/rxjs/_esm5/
+# RUN rm -rf node_modules/rxjs/_esm2015/
+# RUN rm -rf node_modules/grpc/deps/grpc/third_party/
+
+##################################################################################
+
+FROM node:18-alpine
+
+# 컨테이너에서 사용할 기본 환경설정
+ENV APP_HOME /opt/cold-chain-app-api
+
+# 작업 디렉토리 생성
+WORKDIR /usr/local/cold-chain-app-api
+
+# 이미지 내 작업 디렉토리로 이동
+WORKDIR $APP_HOME
+
+# 빌드한 소스 및 모듈을 작업 디렉토리로 복사
+COPY --from=builder dist            app
+COPY --from=builder node_modules    node_modules
+
+# 필요한 프로그램 설치
+RUN apk update &&  apk add --no-cache curl bash net-tools
+
+# 필요한 Alias 등록
+RUN printf '#!/bin/sh\nls -lh --group-directories-first "$@"' > /usr/bin/lx && \
+    chmod +x /usr/bin/lx
+
+# 볼륨
+VOLUME /opt/cold-chain-app-api/data
+VOLUME /opt/cold-chain-app-api/logs
+
+# 프로그램 시작
+CMD node app/index.js && tail -f /dev/null

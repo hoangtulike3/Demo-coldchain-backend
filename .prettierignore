@@ -1,0 +1,14 @@
+.idea
+.git
+.gitignore
+.dockerignore
+Dockerfile
+*.md
+*.sh
+*.yml
+*.yaml
+.vscode/
+data/
+dist/
+logs/
+node_modules/

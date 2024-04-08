@@ -1,0 +1,32 @@
+version: "3.3"
+    
+volumes:
+  apidata:
+    name: cold-chain-app-dev-api-data
+  apilogs:
+    name: cold-chain-app-dev-api-logs
+
+services:
+  # api:
+  #   image: cold-chain-app-api:latest
+  #   container_name: cold-chain-app-dev-api
+  #   restart: on-failure
+  #   environment:
+  #     - NODE_ENV=development
+  #     - REDIS_HOST=redis
+  #   ports:
+  #     - 3000:3000
+  #   volumes:
+  #     - apidata:/opt/cold-chain-app-api/data
+  #     - apilogs:/opt/cold-chain-app-api/logs
+  #     - ./.env:/opt/cold-chain-app-api/.env
+  #   depends_on:
+  #     redis:
+  #       condition: service_started
+
+  redis:
+    image: redis:alpine
+    container_name: cold-chain-app-dev-redis
+    restart: always
+    ports:
+      - 6379:6379

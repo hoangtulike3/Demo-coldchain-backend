@@ -1,0 +1,32 @@
+{
+  "root": true,
+  "env": {
+    "es2020": true,
+    "node": true,
+    "mocha": true,
+    "browser": false
+  },
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 11,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "@typescript-eslint"
+  ],
+  "extends": [
+    "standard", 
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended"
+  ],
+  "rules": {
+    "prettier/prettier": 0,
+    "no-undef": "off",
+    "no-unused-vars": "off",
+    "no-extend-native": "off",
+    "dot-notation": "off",
+    "array-callback-return": "off",
+    "camelcase": "off"
+  },
+  "ignorePatterns": ["node_modules", "build", "dist", "profiles"]
+}

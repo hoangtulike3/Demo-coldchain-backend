@@ -1,0 +1,49 @@
+# Dependency directories
+node_modules/
+
+# Directory for building project
+build/
+dist/
+
+# tests
+tests/
+
+# Logs
+log/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# dotenv environment variables file
+.env
+.env.*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Docker compose files
+docker-compose.yml
+docker-compose.yaml
+
+# Local Data
+temp
+data
