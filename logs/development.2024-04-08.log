@@ -1,0 +1,14 @@
+2024-04-08 18:32:58 +09:00 [api] info: ==========================================================
+2024-04-08 18:32:58 +09:00 [api] info: START [cold-chain-app/api/development]
+2024-04-08 18:32:58 +09:00 [api] info: Start Process.
+2024-04-08 18:32:58 +09:00 [api] info: HTTP Server listen on port 3000.
+2024-04-08 18:33:00 +09:00 [api] info: Received kill signal, shutting down gracefully
+2024-04-08 18:33:00 +09:00 [api] info: HTTP Server closed on port 3000.
+2024-04-08 18:33:00 +09:00 [api] warn: Process exit. (SIGINT)
+2024-04-08 18:33:00 +09:00 [api] error: !!!!!!! Applicaiton Error
+2024-04-08 18:33:00 +09:00 [api] error: The "code" argument must be of type number. Received type string ('SIGINT')
+2024-04-08 18:33:00 +09:00 [api] error: TypeError [ERR_INVALID_ARG_TYPE]: The "code" argument must be of type number. Received type string ('SIGINT')
+    at process.set [as exitCode] (node:internal/bootstrap/node:123:9)
+    at process.exit (node:internal/process/per_thread:188:24)
+    at /Users/nguyenmauhoang/Dự án đang triển khai/Coldchain/Demo back-end/Demo-coldchain-backend/dist/index.js:36:17
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)

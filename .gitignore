@@ -1,49 +1,49 @@
-# Dependency directories
-node_modules/
+# # Dependency directories
+# node_modules/
 
-# Directory for building project
-build/
-dist/
+# # Directory for building project
+# build/
+# dist/
 
-# tests
-tests/
+# # tests
+# tests/
 
-# Logs
-log/
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+# # Logs
+# log/
+# logs/
+# *.log
+# npm-debug.log*
+# yarn-debug.log*
+# yarn-error.log*
+# lerna-debug.log*
 
-# dotenv environment variables file
-# .env
-.env.development
+# # dotenv environment variables file
+# # .env
+# .env.development
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# # Runtime data
+# pids
+# *.pid
+# *.seed
+# *.pid.lock
 
-# Optional npm cache directory
-.npm
+# # Optional npm cache directory
+# .npm
 
-# Optional eslint cache
-.eslintcache
+# # Optional eslint cache
+# .eslintcache
 
-### VisualStudioCode ###
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# ### VisualStudioCode ###
+# .vscode/*
+# !.vscode/settings.json
+# !.vscode/tasks.json
+# !.vscode/launch.json
+# !.vscode/extensions.json
 
-# Docker compose files
-docker-compose.yml
-docker-compose.yaml
+# # Docker compose files
+# docker-compose.yml
+# docker-compose.yaml
 
-# Local Data
-temp
-data
+# # Local Data
+# temp
+# data

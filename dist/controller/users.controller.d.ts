@@ -1,0 +1,10 @@
+import { Request, Response } from "express";
+import { User } from "../interface/User";
+export declare const getUsers: (req: Request, res: Response) => Promise<User | void>;
+export declare const generateWorkID: (_: Request, res: Response) => Promise<User | void>;
+export declare const updateMyAccountDetail: (req: Request, res: Response) => Promise<User | void>;
+export declare const updateMyAccountStatus: (req: Request, res: Response) => Promise<User | void>;
+export declare const getMyAccountDetail: (req: Request, res: Response) => Promise<User | void>;
+export declare const addUser: (req: Request, res: Response) => Promise<void>;
+export declare const getUser: (req: Request, res: Response) => Promise<void>;
+export declare const modifyUser: (req: Request, res: Response) => Promise<void>;
