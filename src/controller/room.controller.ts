@@ -40,8 +40,10 @@ export const getRoom = async (req: Request, res: Response, next: NextFunction) =
 // 채팅방 개설
 export const createRoom = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const roomObj: object = req.body;
+    const userId: string = (req.user as User).id;
+    const roomObj: { participants: any[] } = req.body;
     const roomRepo = new RoomRepo();
+    roomObj.participants = [...new Set([...roomObj.participants, userId])].filter((element) => element);
     const createdRoom = await roomRepo.addRoom(roomObj);
 
     response(res, { room: createdRoom });

@@ -184,7 +184,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
     }
 
     const user = await userRepo.findUserByEmail(googleInfo.email);
-    if (!user) {
+    if (!user || !user.role || !user.id) {
       throw createError(404, getError(Code.NOT_FOUND_USER));
     }
 
@@ -253,7 +253,11 @@ export const googleSignup = async (req: Request, res: Response): Promise<void> =
     const addUser = await userRepo.addUser({
       email: googleInfo.email,
       name: googleInfo.name,
+      display_name: googleInfo.name,
       avatar_url: googleInfo.avatar_url,
+      role: UserRole.Admin,
+      status: "available",
+      phone: "",
     });
 
     const accessToken = await JWToken.sign({ id: addUser.id, role: addUser.role });

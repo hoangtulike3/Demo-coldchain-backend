@@ -15,6 +15,7 @@ import authCheck from "../middleware/jwt.middlewares";
 import authRoute from "../routes/auth.route";
 import userRoute from "../routes/users.route";
 import chatRoute from "../routes/chat.route";
+import configRoute from "../routes/config.route";
 import placeRoute from "../routes/places.route";
 import roomRoute from "../routes/room.route";
 import packageRoute from "../routes/package.route";
@@ -130,6 +131,7 @@ export class APIServer {
     this.app.use("/packages", auth, packageRoute());
     this.app.use("/tasks", auth, taskRoute());
     this.app.use("/membership", auth, membershipRoute());
+    this.app.use("/config", auth, configRoute());
 
     // catch 404 and forward to error handler
     this.app.use((_req: Request, res: Response) => res.sendStatus(404));

@@ -11,14 +11,15 @@ export class UserRepo {
     status?: string;
     phone?: string;
     avatar_url?: string;
+    display_name?: string;
   }): Promise<User> {
     const query =
       `SET TIME ZONE 'Asia/Seoul'; ` +
       `
-        INSERT INTO "user" (name, status, role, email, phone, avatar_url, type, created_at)
-          VALUES ('${users.name}', 'Available', '${users.role}', '${users.email}', '${users.phone}', '${
-        users.avatar_url
-      }', '${users.email ? 1 : 2}', current_timestamp)
+        INSERT INTO "user" (name, status, role, email, phone, avatar_url, type, display_name, created_at)
+          VALUES ('${users.name ?? ""}', 'Available', '${users.role ?? "user"}', '${users.email ?? ""}', '${
+        users.phone ?? ""
+      }', '${users.avatar_url ?? ""}', '${users.email ? 1 : 2}', '${users.display_name ?? ""}', current_timestamp)
         RETURNING id, name, status, role, email, phone, avatar_url, created_at, updated_at;
       `;
     const result = await db.one<User>(query);
@@ -154,8 +155,13 @@ export class UserRepo {
   async findUserByEmail(email?: string): Promise<User | null> {
     const query = `
       SELECT 
-        id,
-        work_id
+        id, 
+        email, 
+        role, 
+        phone,
+        avatar_url,
+        created_at, 
+        updated_at
       FROM "user"
       WHERE 
         email = $1
@@ -214,17 +220,25 @@ export class UserRepo {
   }
 
   /** 전체 사용자 조회 */
-  async getUsersName(userId: string) {
+  async getUserInfo(userId: string) {
     const query = `
       SELECT 
-        id,
-        name
+        id, 
+        email,
+        name,
+        role, 
+        phone,
+        avatar_url,
+        created_at, 
+        updated_at,
+        position as work_position,
+        work_id
       FROM "user" 
       WHERE
         id = $1
       ORDER BY created_at ASC
     `;
-    const result = await db.manyOrNone(query, [userId]);
+    const result = await db.oneOrNone(query, [userId]);
     return result;
   }
 }

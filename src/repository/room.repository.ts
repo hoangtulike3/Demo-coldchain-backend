@@ -25,9 +25,58 @@ export class RoomRepo {
         SELECT
           r.*,
           lm.last_message,
-          array_agg(m.user_id) FILTER (WHERE m."type" = 'member') AS member_ids,
-          array_agg(m.user_id) FILTER (WHERE m."type" = 'supporter') AS supporter_ids,
-          array_agg(m.user_id) FILTER (WHERE m."type" = 'guest') AS guest_ids,
+          (
+            SELECT 
+              array_agg(json_build_object(
+                'id', task.id,
+                'name', task.name,
+                'description', task.description,
+                'status', task.status,
+                'created_at', task.created_at,
+                'updated_at', task.updated_at,
+                'rtp', task.rtp,
+                'participants', 
+                  (
+                    SELECT 
+                      array_agg(json_build_object(
+                        'id', public.user.id,
+                        'name', public.user.name,
+                        'email', public.user.email,
+                        'phone', public.user.phone,
+                        'status', public.user.status,
+                        'role', public.user.role,
+                        'work_id', public.user.work_id,
+                        'avatar_url', public.user.avatar_url,
+                        'display_name', public.user.display_name,
+                        'type', public.user.type,
+                        'description', public.user.description,
+                        'work_position', public.user.position
+                      )) 
+                    FROM public.user
+                    WHERE public.user.id IN (SELECT DISTINCT(unnest(array_agg(user_task.user_id)::int[])) from user_task WHERE user_task.task_id = task.id)
+                  )
+              ))
+            FROM task
+            WHERE task.room_id = r.id
+          ) as tasks_info,
+          (
+            SELECT array_agg(json_build_object(
+              'id', public.user.id,
+              'name', public.user.name,
+              'email', public.user.email,
+              'phone', public.user.phone,
+              'status', public.user.status,
+              'role', public.user.role,
+              'work_id', public.user.work_id,
+              'avatar_url', public.user.avatar_url,
+              'display_name', public.user.display_name,
+              'type', public.user.type,
+              'description', public.user.description,
+              'work_position', public.user.position
+            ))
+            FROM public.user
+            WHERE public.user.id IN (SELECT DISTINCT(unnest(room.participants::int[])) FROM room WHERE room.id = r.id)
+          ) as participants_info,
           COUNT(*) OVER() AS total_count
         FROM "room" r
         JOIN user_room ur ON ur.room_id = r.id
@@ -58,7 +107,6 @@ export class RoomRepo {
   // 채팅방 개설
   async addRoom(room: any) {
     const { name, participants, description, id } = room;
-    console.log(room);
     let createdRoom: any;
 
     await db.tx(async (t) => {
@@ -83,7 +131,7 @@ export class RoomRepo {
       }
     });
 
-    return createdRoom;
+    return this.getRoom(createdRoom.id);
   }
 
   // 채팅방 수정
@@ -104,12 +152,62 @@ export class RoomRepo {
   async getRoom(roomId: string) {
     const result = await db.one(
       `
-        SELECT 
+        SELECT
           r.*,
-          array_agg(m.user_id) FILTER (WHERE m."type" = 'member') AS member_ids,
-          array_agg(m.user_id) FILTER (WHERE m."type" = 'supporter') AS supporter_ids,
-          array_agg(m.user_id) FILTER (WHERE m."type" = 'guest') AS guest_ids
+          (
+            SELECT 
+              array_agg(json_build_object(
+                'id', task.id,
+                'name', task.name,
+                'description', task.description,
+                'status', task.status,
+                'created_at', task.created_at,
+                'updated_at', task.updated_at,
+                'rtp', task.rtp,
+                'participants', 
+                  (
+                    SELECT 
+                      array_agg(json_build_object(
+                        'id', public.user.id,
+                        'name', public.user.name,
+                        'email', public.user.email,
+                        'phone', public.user.phone,
+                        'status', public.user.status,
+                        'role', public.user.role,
+                        'work_id', public.user.work_id,
+                        'avatar_url', public.user.avatar_url,
+                        'display_name', public.user.display_name,
+                        'type', public.user.type,
+                        'description', public.user.description,
+                        'work_position', public.user.position
+                      )) 
+                    FROM public.user
+                    WHERE public.user.id IN (SELECT DISTINCT(unnest(array_agg(user_task.user_id)::int[])) from user_task WHERE user_task.task_id = task.id)
+                  )
+              ))
+            FROM task
+            WHERE task.room_id = r.id
+          ) as tasks_info,
+          (
+            SELECT array_agg(json_build_object(
+              'id', public.user.id,
+              'name', public.user.name,
+              'email', public.user.email,
+              'phone', public.user.phone,
+              'status', public.user.status,
+              'role', public.user.role,
+              'work_id', public.user.work_id,
+              'avatar_url', public.user.avatar_url,
+              'display_name', public.user.display_name,
+              'type', public.user.type,
+              'description', public.user.description,
+              'work_position', public.user.position
+            ))
+            FROM public.user
+            WHERE public.user.id IN (SELECT DISTINCT(unnest(room.participants::int[])) FROM room WHERE room.id = r.id)
+          ) as participants_info
         FROM "room" r
+        JOIN user_room ur ON ur.room_id = r.id
         LEFT JOIN package p ON p.id = r.package_id
         LEFT JOIN membership m ON m.place_id = p.place_id
         WHERE

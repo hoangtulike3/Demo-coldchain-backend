@@ -41,6 +41,7 @@ export const getPlaces = async (req: Request, res: Response, next: NextFunction)
       thumbnail: "https://videoai.coming.io/resources/ccs/place.jpg",
     });
   } catch (e) {
+    console.error(e);
     defaultError(res, e);
   }
 };
@@ -90,7 +91,6 @@ export const createPlace = async (req: Request, res: Response, next: NextFunctio
       const fileUrl = await uploadPlaceFileToS3(imageFile.buffer, imageFile.originalname, imageFile.mimetype);
       await placeRepo.addPlacePhoto(fileUrl, place.id);
     }
-    console.log(files);
     if (files.photos && files.photos.length > 0) {
       const imageFiles = files.photos;
       await Promise.all(

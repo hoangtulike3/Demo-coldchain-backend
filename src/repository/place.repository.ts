@@ -37,6 +37,8 @@ export class PlaceRepo {
           p.id,
           p.name,
           p.latitude,
+          p.address,
+          p.address2,
           p.longitude,
           (select COUNT(*) from package where package.place_id = p.id) AS rtp,
           (select COALESCE(SUM(package.net_weight),0) from package where package.place_id = p.id) AS net_weight,
@@ -66,7 +68,7 @@ export class PlaceRepo {
         pd.total_count 
       FROM place_data pd
       ${userLongitude !== undefined && userLatitude !== undefined ? "ORDER BY distance ASC" : ""}
-      LIMIT $1 OFFSET $2
+      ${pageSize !== -1 ? `LIMIT $1 OFFSET $2` : ""}
     `;
 
     const places = await db.manyOrNone(query, params);

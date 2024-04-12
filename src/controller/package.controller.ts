@@ -40,7 +40,7 @@ export const getPackages = async (req: Request, res: Response, next: NextFunctio
       : [];
     const searchName: string = (req.query.search_name as string) || "";
     const packageRepo = new PackageRepo();
-    const userRepo = new UserRepo();
+    // const userRepo = new UserRepo();
     const { packages, totalCount } = await packageRepo.getPackages(
       page,
       pageSize,
@@ -52,16 +52,16 @@ export const getPackages = async (req: Request, res: Response, next: NextFunctio
       searchName
     );
 
-    for (const packageObj of packages) {
-      if (packageObj.owner && packageObj.owner.length > 0) {
-        const ownerNames = [];
-        for (const ownerId of packageObj.owner) {
-          const userName = await userRepo.getUsersName(ownerId);
-          ownerNames.push(userName);
-        }
-        packageObj.owner = ownerNames;
-      }
-    }
+    // for (const packageObj of packages) {
+    //   if (packageObj.owner && packageObj.owner.length > 0) {
+    //     const ownerNames = [];
+    //     for (const ownerId of packageObj.owner) {
+    //       const userName = await userRepo.getUserInfo(ownerId);
+    //       ownerNames.push(userName);
+    //     }
+    //     packageObj.owner = ownerNames;
+    //   }
+    // }
 
     if ((page - 1) * pageSize + packages.length >= totalCount) {
       pageSize = packages.length;
@@ -85,11 +85,11 @@ export const getPackage = async (req: Request, res: Response, next: NextFunction
     const userRepo = new UserRepo();
     const packageRepo = new PackageRepo();
     const packages = await packageRepo.getPackage(packageId);
-
+    packages.owner = [...new Set(packages.owner ?? [])].filter((element) => element);
     if (packages.owner && packages.owner.length > 0) {
       const ownerNames = [];
       for (const ownerId of packages.owner) {
-        const userName = await userRepo.getUsersName(ownerId);
+        const userName = await userRepo.getUserInfo(ownerId);
         ownerNames.push(userName);
       }
       packages.owner = ownerNames;
@@ -117,7 +117,7 @@ export const createPackage = async (req: Request, res: Response, next: NextFunct
     }
 
     if (!packageObj.participants.includes(user?.id)) {
-      packageObj.participants = [...packageObj.participants, user?.id];
+      packageObj.participants = [...new Set([...packageObj.participants, user?.id])].filter((element) => element);
     }
 
     const type = "owner";
@@ -170,7 +170,7 @@ export const modifyPackage = async (req: Request, res: Response, next: NextFunct
     }
 
     if (!packageObj.participants.includes(user?.id)) {
-      packageObj.participants = [...packageObj.participants, user?.id];
+      packageObj.participants = [...new Set([...packageObj.participants, user?.id])].filter((element) => element);
     }
 
     const oldPackages = await packageRepo.getPackage(packageId);

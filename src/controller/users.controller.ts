@@ -72,8 +72,8 @@ export const updateMyAccountDetail = async (req: Request, res: Response): Promis
         display_name: userObj.display_name,
         description: userObj.description,
         name: userObj.name,
+        avatar_url: avatar_url ?? null,
         // EDIT ON RIGHT CONDITION
-        ...(avatar_url && { avatar_url }),
         ...(userInfo?.type === 1 && { phone: userObj.phone }),
         ...(userInfo?.type !== 1 && { email: userObj.email }),
       },

@@ -10,7 +10,97 @@ export class TaskRepo {
       WITH task_data AS (
         SELECT
           t.*,
-          r.name AS room_name,
+          (
+            SELECT
+              json_build_object(
+                'id', r.id,
+                'name', r.name,
+                'description', r.description,
+                'status', r.status,
+                'tasks_info',
+                (
+                  SELECT 
+                    array_agg(json_build_object(
+                      'id', task.id,
+                      'name', task.name,
+                      'description', task.description,
+                      'status', task.status,
+                      'created_at', task.created_at,
+                      'updated_at', task.updated_at,
+                      'rtp', task.rtp,
+                      'participants', 
+                        (
+                          SELECT 
+                            array_agg(json_build_object(
+                              'id', public.user.id,
+                              'name', public.user.name,
+                              'email', public.user.email,
+                              'phone', public.user.phone,
+                              'status', public.user.status,
+                              'role', public.user.role,
+                              'work_id', public.user.work_id,
+                              'avatar_url', public.user.avatar_url,
+                              'display_name', public.user.display_name,
+                              'type', public.user.type,
+                              'description', public.user.description,
+                              'work_position', public.user.position
+                            )) 
+                          FROM public.user
+                          WHERE public.user.id IN (SELECT DISTINCT(unnest(array_agg(user_task.user_id)::int[])) from user_task WHERE user_task.task_id = task.id)
+                        )
+                    ))
+                  FROM task
+                  WHERE task.room_id = r.id
+                ),
+                'participants_info',
+                (
+                  SELECT array_agg(json_build_object(
+                    'id', public.user.id,
+                    'name', public.user.name,
+                    'email', public.user.email,
+                    'phone', public.user.phone,
+                    'status', public.user.status,
+                    'role', public.user.role,
+                    'work_id', public.user.work_id,
+                    'avatar_url', public.user.avatar_url,
+                    'display_name', public.user.display_name,
+                    'type', public.user.type,
+                    'description', public.user.description,
+                    'work_position', public.user.position
+                  ))
+                  FROM public.user
+                  WHERE public.user.id IN (SELECT DISTINCT(unnest(room.participants::int[])) FROM room WHERE room.id = r.id)
+                )
+              )
+              FROM "room" r
+              JOIN user_room ur ON ur.room_id = r.id
+              LEFT JOIN package p ON p.id = r.package_id
+              LEFT JOIN membership m ON m.place_id = p.place_id
+              WHERE
+                r.id = t.room_id
+              GROUP BY r.id
+              ORDER BY r.created_at DESC
+            ) as room_info,
+          (
+            SELECT
+              array_agg(json_build_object(
+                'id', public.user.id,
+                'name', public.user.name,
+                'email', public.user.email,
+                'phone', public.user.phone,
+                'status', public.user.status,
+                'role', public.user.role,
+                'work_id', public.user.work_id,
+                'avatar_url', public.user.avatar_url,
+                'display_name', public.user.display_name,
+                'type', public.user.type,
+                'description', public.user.description
+            ))
+            FROM public.user 
+            WHERE public.user.id in
+            (SELECT DISTINCT(unnest(array_agg(user_task.user_id)::int[])) FROM user_task WHERE user_task.task_id = t.id)
+          ) as participants_info,
+
           COUNT(*) OVER() AS total_count
         FROM "task" t
         JOIN user_task ut ON ut.task_id = t.id
@@ -18,6 +108,7 @@ export class TaskRepo {
         WHERE 
           ut.user_id = $1
         ${search}
+        GROUP BY t.id
         ORDER BY t.created_at DESC
         LIMIT $2 OFFSET $3
       )

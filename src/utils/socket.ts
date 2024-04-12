@@ -3,6 +3,7 @@ import { Server as HttpsServer } from "https";
 import { Server as SocketServer } from "socket.io";
 import { RoomRepo } from "../repository/room.repository";
 import { ChatRepo } from "../repository/chat.repository";
+import { UserRepo } from "../repository/users.repository";
 
 export default async function initializeSocket(
   server: HttpServer | HttpsServer
@@ -22,6 +23,12 @@ export default async function initializeSocket(
       const { roomId } = data;
       socket.join(roomId);
       console.log(`Socket ${socket.id} joined room ${roomId}`);
+    });
+
+    socket.on("leave room", (data) => {
+      const { roomId } = data;
+      socket.leave(roomId);
+      console.log(`Socket ${socket.id} leave room ${roomId}`);
     });
 
     socket.on("chat message", async (data) => {
@@ -44,6 +51,9 @@ export default async function initializeSocket(
         }
 
         const newMessage = await ChatRepo.addMessage(message, userId, roomId);
+        const userRepo = new UserRepo();
+        const user_info = await userRepo.getUserById(userId);
+        newMessage.user_info = user_info;
         console.log(`New message added to room ${roomId}:`, newMessage);
         chatNamespace.to(roomId).emit("chat message", newMessage);
       } catch (e: any) {

@@ -19,13 +19,31 @@ export class ChatRepo {
     const result = await db.any(
       `
       SELECT 
-        m.* 
+        m.*,
+        (
+          SELECT 
+            json_build_object(
+              'id', public.user.id,
+              'name', public.user.name,
+              'email', public.user.email,
+              'phone', public.user.phone,
+              'status', public.user.status,
+              'role', public.user.role,
+              'work_id', public.user.work_id,
+              'avatar_url', public.user.avatar_url,
+              'display_name', public.user.display_name,
+              'type', public.user.type,
+              'description', public.user.description
+            )
+          FROM public.user 
+          WHERE m.user_id = public.user.id
+        ) AS user_info
       FROM message m
       LEFT JOIN room r ON r.id = m.room_id
       WHERE
         room_id = $1
       ${searchText}
-      ORDER BY m.created_at DESC
+      ORDER BY m.created_at ASC
     `,
       [roomId, search]
     );

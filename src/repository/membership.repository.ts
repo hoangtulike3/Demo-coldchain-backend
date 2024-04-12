@@ -49,26 +49,47 @@ export class MembershipRepo {
   }
 
   // 멤버십의 각 타입별로 조회
-  async getMembers(type?: string) {
-    const membershipType = type ? `WHERE m.type = $1` : "";
+  async getMembers(page: number, pageSize: number) {
+    // const membershipType = type ? `WHERE m.type = $1` : "";
+
+    const offset = (page - 1) * pageSize;
+
     const result = await db.manyOrNone(
+      //   `
+      //   SELECT DISTINCT ON (u.id)
+      //     m.user_id,
+      //     u.name,
+      //     m.type,
+      //     m.place_id,
+      //     m.package_id,
+      //     u.work_id,
+      //     u.position,
+      //     m.created_at,
+      //     m.updated_at
+      //   FROM "membership" m
+      //   LEFT JOIN "user" u ON u.id = m.user_id
+      //   ${membershipType}
+      //   ORDER BY u.id, m.created_at DESC
+      // `,
+      //   [type || ""]
       `
-      SELECT DISTINCT ON (u.id)
-        m.user_id,
-        u.name,
-        m.type,
-        m.place_id,
-        m.package_id,
-        u.work_id,
-        u.position,
-        m.created_at,
-        m.updated_at
-      FROM "membership" m
-      LEFT JOIN "user" u ON u.id = m.user_id
-      ${membershipType}
-      ORDER BY u.id, m.created_at DESC
+      SELECT 
+        id, 
+        email,
+        name,
+        role, 
+        phone,
+        avatar_url,
+        created_at, 
+        updated_at,
+        position as work_position,
+        description,
+        work_id
+      FROM "user"
+      ORDER BY created_at DESC
+      ${pageSize !== -1 ? `LIMIT $1 OFFSET $2` : ""}
     `,
-      [type || ""]
+      [pageSize, offset]
     );
     return result;
   }

@@ -33,7 +33,7 @@ export const response = (res: Response, data?: object, code: any = httpStatus.OK
   let result = { result: true };
 
   if (typeof data === "object") {
-    result = Object.assign(result, { data: data });
+    result = Object.assign(result, { data });
   }
 
   return res.status(code).json(result);

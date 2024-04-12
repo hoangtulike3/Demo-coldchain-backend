@@ -68,10 +68,10 @@ class PackageRepo {
       AND 
         ($7::int[] IS NULL OR $7 = '{}' OR p.ware_id = ANY($7))
       AND
-        p.title LIKE '%' || $${params.length} || '%'
+        (p.title LIKE '%' || $8 || '%' OR p.name LIKE '%' || $8 || '%')
       GROUP BY p.id, p.place_id, place.name, place.latitude, place.longitude, b.id, b.description, pc.name, p.net_weight, p.price, p.currency, p.participants, p.created_at, p.updated_at
       ORDER BY p.created_at DESC
-      LIMIT $1 OFFSET $2
+      ${pageSize !== -1 ? `LIMIT $1 OFFSET $2` : ""}
     `;
 
     const packages = await db.manyOrNone(query, params);
@@ -88,7 +88,7 @@ class PackageRepo {
   async getPackage(packageId: string) {
     const result = await db.one(
       `
-      SELECT 
+      SELECT
         p.id,
         p.name AS package_id,
         p.title,

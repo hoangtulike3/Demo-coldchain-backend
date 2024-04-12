@@ -8,8 +8,10 @@ export const getMembershipByType = async (req: Request, res: Response, next: Nex
   try {
     // type = member, owner, guest, supporter
     const type: string = req.query.type as string;
+    const page: number = parseInt(req.query.page as string) || 1;
+    const pageSize: number = parseInt(req.query.pageSize as string) || 10;
     const membershipRepo = new MembershipRepo();
-    const members = await membershipRepo.getMembers(type);
+    const members = await membershipRepo.getMembers(page, pageSize);
 
     response(res, members);
   } catch (e) {
